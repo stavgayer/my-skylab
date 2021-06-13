@@ -1,0 +1,8 @@
+.pybuilder
+__pycache__
+target
+data/*
+!data/.gitkeep
+.build
+kubeconfig.yaml
+secrets.yaml

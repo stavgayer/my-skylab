@@ -1,0 +1,40 @@
+pinot:
+  cluster:
+    name: pinot
+  server:
+    replicaCount: 2    
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule 
+  controller:
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule 
+  broker:
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule
+  minion:
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule

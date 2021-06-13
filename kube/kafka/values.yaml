@@ -1,0 +1,10 @@
+
+kafka:
+  nodeSelector:
+    role: worker
+    nodetype: m5.2xlarge
+  tolerations:
+  - key: role
+    operator: Equal
+    value: worker
+    effect: NoSchedule

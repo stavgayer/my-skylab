@@ -1,0 +1,282 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+mkdir -p .build
+source ./env.vars
+GPU=""
+function usage
+{
+    cat << EOF
+COMMAND: scripts
+DESCRIPTION: 
+    This tool makes it easy to build and push an application;
+USAGE: .scripts [SUBCOMMANDS]
+SUBCOMMANDS:
+    kube:
+        pre: 
+            Executes Makefile section 'pre' in kube/<KUBEAPP>/Makefile
+        build: 
+            Executes Makefile section 'build' in kube/<KUBEAPP>/Makefile
+        install: 
+            Executes Makefile section 'install' in kube/<KUBEAPP>/Makefile
+        upgrade: 
+            Executes Makefile section 'upgrade' in kube/<KUBEAPP>/Makefile
+        uninstall: 
+            Executes Makefile section 'uninstall' in kube/<KUBEAPP>/Makefile
+        package: 
+            Executes helm packaging of KUBEAPP. Note: It assumes it is a helm chart.
+    src:
+        build: Executes Makefile section 'build' in src/<APP>/Makefile
+        push: Executes Makefile section 'push' in src/<APP>/Makefile
+PREREQUISITES:
+    * kubectl
+    * helm
+EOF
+}
+
+function set_env_variables
+{
+    if [ "$ENV" = "dev" ]; then
+        INFRA="${ROOT_DIR}/infra/dev"
+    fi
+    export TARGETKUBECONFIG="${INFRA}/kubeconfig.yaml"
+    echo $TARGETKUBECONFIG
+}
+
+function parse
+{
+    assign_folders_locations
+    while [ "$1" != "" ]; do
+        case "$1" in
+            -h|help) usage; break;;
+            kube) shift; parse_kube "$@"; break;;
+            src) shift; parse_src "$@"; break;;
+        esac
+        shift;
+    done
+}
+
+function parse_src
+{
+    SRC_COMMANDS=()
+    SRC_APPS=()
+
+    while [ "$1" != "" ]; do
+        case "$1" in
+            -h|help) usage;;
+            -e|--env) ENV=$2; shift;;
+            -v|--version) EXPLICITVERSION=$2; shift;;
+            -g|--gpu) GPU="-gpu";;
+            run|build|push|install) SRC_COMMANDS+=("$1");;
+            * ) SRC_APPS+=("$1");;
+        esac
+        shift;
+    done
+
+    set_env_variables
+
+    set -- "${SRC_COMMANDS[@]}"
+    while [ $# -gt 0 ]; do
+        execute_src_command $1
+        shift
+    done
+}
+
+function parse_kube
+{
+    KUBE_COMMANDS=()
+    KUBE_APPS=()
+
+    while [ "$1" != "" ]; do
+        case "$1" in
+            -h|help) usage;;
+            -e|--env) ENV=$2; shift;;
+            -g|--gpu) GPU="-gpu";;
+            install|uninstall|pre|upgrade|build|package) KUBE_COMMANDS+=("$1");;
+            * ) KUBE_APPS+=("$1");;
+        esac
+        shift;
+    done
+
+    set_env_variables
+
+    set -- "${KUBE_COMMANDS[@]}"
+    while [ $# -gt 0 ]; do
+        execute_kube_command $1
+        shift
+    done
+}
+
+function execute_kube_command
+{
+    echo "Executing app command: $1"
+    CMD=$1
+    set -- "${KUBE_APPS[@]}"
+    while [ $# -gt 0 ]; do
+        APP=$1
+        case "$CMD" in        
+            install)
+                kube_install $APP
+                ;;
+            uninstall)
+                kube_uninstall $APP
+                ;;
+            pre)
+                kube_pre $APP
+                ;;
+            build)
+                kube_build $APP
+                ;;                
+            upgrade)
+                kube_upgrade $APP
+                ;;                    
+            package)
+                kube_package $APP
+                ;;                
+        esac
+        shift
+    done
+}
+
+function execute_src_command
+{
+    echo "Executing app command: $1"
+    CMD=$1
+    set -- "${SRC_APPS[@]}"
+    while [ $# -gt 0 ]; do
+        APP=$1
+        case "$CMD" in        
+            build)
+                src_build $APP
+                ;;
+            push)
+                src_push $APP
+                ;;
+            install)
+                src_install $APP
+                ;;                
+        esac
+        shift
+    done
+}
+
+
+function kube_install
+{
+    APP=$1
+    echo " === Executing 'install' in $APP ==="
+    pushd kube/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV KUBECONFIG=$TARGETKUBECONFIG NAMESPACE=$NAMESPACE make install
+    popd >/dev/null 2>&1
+}
+
+function kube_uninstall
+{
+    APP=$1
+    echo " === Executing 'uninstall' in $APP ==="
+    pushd kube/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV KUBECONFIG=$TARGETKUBECONFIG NAMESPACE=$NAMESPACE make uninstall
+    popd >/dev/null 2>&1
+}
+
+function kube_pre
+{
+    APP=$1
+    echo " === Executing 'pre' in $APP ==="
+    pushd kube/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV KUBECONFIG=$TARGETKUBECONFIG NAMESPACE=$NAMESPACE make pre
+    popd >/dev/null 2>&1
+}
+
+function kube_upgrade
+{
+    APP=$1
+    echo " === Executing 'upgrade' in $APP ==="
+    pushd kube/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV KUBECONFIG=$TARGETKUBECONFIG NAMESPACE=$NAMESPACE make upgrade
+    popd >/dev/null 2>&1
+}
+
+function kube_build
+{
+    APP=$1
+    echo " === Executing 'build' in $APP ==="
+    pushd kube/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV KUBECONFIG=$TARGETKUBECONFIG NAMESPACE=$NAMESPACE make build
+    popd >/dev/null 2>&1
+}
+
+function kube_package
+{
+    APP=$1
+    echo " === Executing 'package' in $APP ==="
+    mkdir -p charts
+    pushd kube/$APP >/dev/null 2>&1
+        helm package -u -d ../../charts .;
+        pushd ../../charts >/dev/null 2>&1
+            helm repo index .; 
+        popd;
+    popd >/dev/null 2>&1
+}
+
+function src_build
+{
+    set_exec_variables
+    APP=$1
+    echo $VERSION
+    echo " === Executing 'build' in $APP ==="
+    pushd src/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV VERSION=$VERSION make build
+    popd >/dev/null 2>&1
+}
+
+function src_push
+{
+    APP=$1
+    echo " === Executing 'push' in $APP ==="
+    pushd src/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV VERSION=$VERSION make push
+    popd >/dev/null 2>&1
+}
+
+function src_run
+{
+    APP=$1
+    echo " === Executing 'run' in $APP ==="
+    pushd src/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV VERSION=$VERSION make run
+    popd >/dev/null 2>&1
+}
+
+function src_install
+{
+    APP=$1
+    echo " === Executing 'run' in $APP ==="
+    pushd src/$APP >/dev/null 2>&1
+        GPU=$GPU ENV=$ENV VERSION=$VERSION make install
+    popd >/dev/null 2>&1
+}
+
+function set_exec_variables
+{
+    # if version is not explicit
+    if [ -z ${EXPLICITVERSION+x} ]; then
+        VERSION=1.0.0
+    else
+        VERSION=$EXPLICITVERSION
+    fi
+}
+
+function assign_folders_locations() {
+    ROOT_DIR="${BASH_SOURCE[0]}"
+    if ([ -h "${ROOT_DIR}" ]); then
+        while([ -h "${ROOT_DIR}" ]); do cd `dirname "$ROOT_DIR"`;
+        ROOT_DIR=`readlink "${ROOT_DIR}"`; done
+    fi
+    cd `dirname ${ROOT_DIR}` > /dev/null
+    ROOT_DIR=`pwd`;
+}
+
+
+parse "$@"

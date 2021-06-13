@@ -1,0 +1,6 @@
+dependencies:
+- name: pinot
+  repository: https://raw.githubusercontent.com/apache/incubator-pinot/master/kubernetes/helm
+  version: 0.2.3
+digest: sha256:7e86d9bb400901e23b68a948ee68ccd1e5af76644ad58a1a95c99813280b6949
+generated: "2021-06-12T02:58:25.798453+09:00"

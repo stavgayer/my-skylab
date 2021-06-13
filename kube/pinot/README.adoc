@@ -1,0 +1,7 @@
+
+# Create topic
+
+```
+/opt/bitnami/kafka/bin/kafka-topics.sh --zookeeper kafka-zookeeper:2181 --topic flights-realtime --create --partitions 1 --replication-factor 1
+/opt/bitnami/kafka/bin/kafka-topics.sh --zookeeper kafka-zookeeper:2181 --topic flights-realtime-avro --create --partitions 1 --replication-factor 1
+````
