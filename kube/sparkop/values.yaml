@@ -1,0 +1,6 @@
+# spark-operator:
+  # image:
+  #   tag: v1beta2-1.1.2-2.4.5
+  # uiService:
+  #   # -- Enable UI service creation for Spark application
+  #   enable: false
