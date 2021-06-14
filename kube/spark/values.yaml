@@ -1,0 +1,20 @@
+
+spark:
+  head:
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge
+  worker:
+    tolerations:
+    - key: role
+      operator: Equal
+      value: worker
+      effect: NoSchedule
+    nodeSelector:
+      role: worker
+      nodetype: m5.2xlarge    
