@@ -1,0 +1,58 @@
+
+ray20dev:
+  head:
+    minWorkers: 0
+    maxWorkers: 0
+    numCPU: 1
+    memory: 512Mi
+    numGPU: 0
+    rayResources: {}
+    tolerations:
+      - key: role
+        operator: Equal
+        value: recommender
+        effect: NoSchedule
+      - key: role
+        operator: Equal
+        value: recommender
+        effect: NoExecute
+    nodeSelector: 
+      cloud.google.com/gke-nodepool: recommender
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: cloud.google.com/gke-nodepool
+              operator: In
+              values:
+              - recommender    
+
+  workers:
+    worker1:
+      minWorkers: 0
+      maxWorkers: 3
+      numCPU: 1
+      memory: 512Mi
+      numGPU: 0
+      rayResources: {}
+      tolerations:
+        - key: role
+          operator: Equal
+          value: recommender
+          effect: NoSchedule
+        - key: role
+          operator: Equal
+          value: recommender
+          effect: NoExecute
+      nodeSelector: 
+        cloud.google.com/gke-nodepool: recommender
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/gke-nodepool
+                operator: In
+                values:
+                - recommender

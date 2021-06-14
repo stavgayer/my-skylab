@@ -1,0 +1,68 @@
+ray:
+  operatorOnly: true
+  clusterOnly: false
+  namespacedOperator: true
+  operatorImage: rayproject/ray:2aee4a-py37
+
+headServicePorts:
+  - name: client
+    port: 10001
+    targetPort: 10001
+  - name: dashboard
+    port: 8265
+    targetPort: 8265
+  - name: ray-serve
+    port: 8000
+    targetPort: 8000
+
+headStartRayCommands:
+  - ray stop
+  - ulimit -n 65536; ray start --head --no-monitor --dashboard-host 0.0.0.0
+
+  # Commands to start Ray on worker nodes. You don't need to change this.
+workerStartRayCommands:
+  - ray stop
+  - ulimit -n 65536; ray start --address=$RAY_HEAD_IP:6379
+
+clusterMaxWorkers: 10
+imagePullSecrets:
+  - name: gcr-registry-key
+
+head:
+  image: asia.gcr.io/unext-recommender-system/dsml/recommender-gpu:latest
+  minWorkers: 0
+  maxWorkers: 0
+  numCPU: 3
+  memory: 50Gi
+  diskSize: 100Gi
+  numGPU: 1
+  # tolerations:
+  # - key: role
+  #   operator: Equal
+  #   value: worker
+  #   effect: NoSchedule
+  # nodeSelector:
+  #   role: worker
+  tolerations:
+  - key: role
+    operator: Equal
+    value: gpuworker
+    effect: NoSchedule
+  nodeSelector:
+    role: gpuworker  
+workers:
+  gpuworker:
+    image: asia.gcr.io/unext-recommender-system/dsml/recommender-gpu:latest
+    minWorkers: 0
+    maxWorkers: 2
+    numCPU: 3
+    memory: 50Gi
+    numGPU: 1
+    rayResources: {}
+    tolerations:
+    - key: role
+      operator: Equal
+      value: gpuworker
+      effect: NoSchedule
+    nodeSelector:
+      role: gpuworker

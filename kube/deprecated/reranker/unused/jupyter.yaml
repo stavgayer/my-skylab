@@ -1,0 +1,38 @@
+---
+# Ray head node service, allowing worker pods to discover the head node.
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{.Release.Namespace}}
+  name: {{.Chart.Name}}-jupyter
+spec:
+  ports:
+    - name: jupyter
+      port: 8888
+      targetPort: 8888
+  selector:
+    component: {{.Chart.Name}}-ray-jupyter
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Chart.Name}}-jupyter
+  namespace: {{.Release.Namespace}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: {{.Chart.Name}}-ray-jupyter  
+  template:
+    metadata:
+      labels:
+        component: {{.Chart.Name}}-ray-jupyter
+    spec:
+      containers:
+      - name: jupyter
+        imagePullPolicy: Always
+        image: {{.Values.image}}
+        command: ["/bin/bash", "-c", "--"]
+        args: ['jupyter lab --allow-root --ip=0.0.0.0']
+        ports:
+        - containerPort: 8888

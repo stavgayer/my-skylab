@@ -1,0 +1,6 @@
+dependencies:
+- name: ray
+  repository: https://raw.githubusercontent.com/u-next/ds-skylab-charts/main/charts/
+  version: 0.1.0
+digest: sha256:650c8df4399e23407fecc7c4fae909fc2e1ee5c841593d4f32b23122a200b24b
+generated: "2021-06-03T13:48:17.252225+09:00"

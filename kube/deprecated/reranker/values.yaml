@@ -1,0 +1,54 @@
+image: asia.gcr.io/unext-recommender-system/dev/ds-raybase:latest
+tolerations:
+  - key: role
+    operator: Equal
+    value: ray
+    effect: NoSchedule
+  - key: role
+    operator: Equal
+    value: ray
+    effect: NoExecute
+
+nodeSelector: 
+    cloud.google.com/gke-nodepool: ray
+
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: cloud.google.com/gke-nodepool
+          operator: In
+          values:
+          - ray
+
+head:
+  resources:
+    requests:
+      cpu: 6
+      memory: 22Gi
+    limits:
+      # The maximum memory that this pod is allowed to use. The
+      # limit will be detected by ray and split to use 10% for
+      # redis, 30% for the shared memory object store, and the
+      # rest for application memory. If this limit is not set and
+      # the object store size is not set manually, ray will
+      # allocate a very large object store in each pod that may
+      # cause problems for other pods.
+      cpu: 6
+      memory: 22Gi
+worker:
+  resources:
+    requests:
+      cpu: 3
+      memory: 16Gi
+    limits:
+      # The maximum memory that this pod is allowed to use. The
+      # limit will be detected by ray and split to use 10% for
+      # redis, 30% for the shared memory object store, and the
+      # rest for application memory. If this limit is not set and
+      # the object store size is not set manually, ray will
+      # allocate a very large object store in each pod that may
+      # cause problems for other pods.
+      cpu: 3
+      memory: 16Gi

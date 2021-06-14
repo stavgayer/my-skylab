@@ -1,0 +1,3 @@
+ray20dev:
+  image: asia.gcr.io/unext-recommender-system/dev/ds-ray2jupyterbase:latest
+  clusterMaxWorkers: 10

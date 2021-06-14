@@ -1,0 +1,69 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workspace
+  namespace: {{.Release.Namespace}}
+spec:
+  selector:
+    matchLabels:
+      app: workspace # has to match .spec.template.metadata.labels
+  # serviceName: "workspace"
+  replicas: 1 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: workspace # has to match .spec.selector.matchLabels
+    spec:
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      imagePullSecrets:
+        - name: gcr-registry-key        
+      terminationGracePeriodSeconds: 10
+    {{- if .Values.tolerations }}
+      tolerations: {{- toYaml .Values.tolerations | nindent 12 }}
+    {{- end }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.nodeSelector | nindent 12 }}
+    {{- end }}   
+      initContainers:
+      - name: git-cloner
+        image: {{ .Values.image }}
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - |
+            cd /workspace;
+            git config --global user.name "$GIT_USERNAME"; 
+            git config --global user.email $GIT_USEREMAIL; 
+            git clone $GIT_REPO $GIT_FOLDERNAME;
+        env:
+          - name: TZ
+            value: Asia/Tokyo
+          {{- range $extraEnvVariables := .Values.extraEnvVariables }}
+          - name: {{$extraEnvVariables.name}}
+            value: {{$extraEnvVariables.value | quote}}
+          {{- end}}
+        securityContext:
+          runAsUser: 0
+      containers:
+      - name: mlworkspace
+        image: {{ .Values.image }}
+        ports:
+        - containerPort: 8080
+          name: workspace
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm           
+        resources:
+          requests:
+            cpu: {{ .Values.numCPU }}
+            memory: {{ .Values.memory }}
+          limits:
+            cpu: {{ .Values.numCPU }}
+            memory: {{ .Values.memory }}
+            {{- if .Values.numGPU }}
+            nvidia.com/gpu: {{ .Values.numGPU }}
+            {{- end }}          

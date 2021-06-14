@@ -1,0 +1,11 @@
+image: asia.gcr.io/unext-recommender-system/dsml/workspace:latest
+
+tolerations:
+  - key: role
+    operator: Equal
+    value: worker
+    effect: NoSchedule
+nodeSelector: 
+  role: worker
+
+diskSize: 100Gi  

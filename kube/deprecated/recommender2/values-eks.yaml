@@ -1,0 +1,42 @@
+
+ray20dev:
+  head:
+    minWorkers: 0
+    maxWorkers: 0
+    numCPU: 1
+    memory: 512Mi
+    numGPU: 0
+    rayResources: {}
+    tolerations: []
+    nodeSelector: 
+      node.kubernetes.io/instance-type: m4.2xlarge
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+          - matchExpressions:
+            - key: node.kubernetes.io/instance-type
+              operator: In
+              values:
+                - m4.2xlarge
+
+  workers:
+    worker1:
+      minWorkers: 0
+      maxWorkers: 3
+      numCPU: 1
+      memory: 512Mi
+      numGPU: 0
+      rayResources: {}
+      tolerations: []
+      nodeSelector:
+          node.kubernetes.io/instance-type: m4.2xlarge
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: In
+                values:
+                  - m4.2xlarge

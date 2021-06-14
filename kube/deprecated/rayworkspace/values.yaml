@@ -1,0 +1,23 @@
+rayworkspace:
+  clusterMaxWorkers: 10
+  head:
+    workspace:
+      image: mltooling/ml-workspace:0.12.1
+      # numCPU: 1
+      # memory: 512Mi
+    image: rayproject/ray:1.3.0
+    minWorkers: 0
+    maxWorkers: 0
+    # numCPU: 1
+    # memory: 512Mi
+    # numGPU: 1
+    rayResources: {}
+  # workers:
+  #   worker1:
+  #     image: rayproject/ray:1.3.0
+  #     minWorkers: 0
+  #     maxWorkers: 3
+  #     # numCPU: 1
+  #     # memory: 512Mi
+  #     numGPU: 1
+  #     rayResources: {}

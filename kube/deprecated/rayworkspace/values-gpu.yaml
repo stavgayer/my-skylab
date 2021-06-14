@@ -1,0 +1,37 @@
+rayworkspace:
+  clusterMaxWorkers: 10
+  head:
+    workspace:
+      image: asia.gcr.io/unext-recommender-system/dsml-recommender/workspace-gpu:latest
+      # numCPU: 1
+      # memory: 512Mi
+    image: asia.gcr.io/unext-recommender-system/dsml-recommender/ray-gpu:latest
+    minWorkers: 0
+    maxWorkers: 1
+    # numCPU: 1
+    # memory: 512Mi
+    numGPU: 1
+    rayResources: {}
+    tolerations:
+      - key: role
+        operator: Equal
+        value: gpuworker
+        effect: NoSchedule
+    nodeSelector: 
+      role: gpuworker
+  workers:
+    gpuworker:
+      image: asia.gcr.io/unext-recommender-system/dsml-recommender/ray-gpu:latest
+      minWorkers: 1
+      maxWorkers: 2
+      # numCPU: 1
+      # memory: 512Mi
+      numGPU: 1
+      rayResources: {}
+      tolerations:
+        - key: role
+          operator: Equal
+          value: gpuworker
+          effect: NoSchedule
+      nodeSelector: 
+        role: gpuworker

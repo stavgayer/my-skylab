@@ -1,0 +1,14 @@
+image: asia.gcr.io/unext-recommender-system/dsml/workspace:latest
+# image: mltooling/ml-workspace-gpu:0.12.1
+tolerations:
+  - key: role
+    operator: Equal
+    value: gpuworker
+    effect: NoSchedule
+nodeSelector: 
+  role: gpuworker
+
+numCPU: 3
+memory: 50Gi
+numGPU: 1
+diskSize: 100Gi

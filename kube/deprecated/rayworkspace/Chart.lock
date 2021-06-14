@@ -1,0 +1,6 @@
+dependencies:
+- name: rayworkspace
+  repository: https://raw.githubusercontent.com/u-next/ds-skylab-charts/main/charts/
+  version: 0.1.0
+digest: sha256:fb935ab8e89c1e921f3477857d5850e5b9ada8943c0d7bbded6d1bce7170a535
+generated: "2021-06-02T11:15:25.299306+09:00"

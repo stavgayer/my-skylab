@@ -1,0 +1,266 @@
+apiVersion: cluster.ray.io/v1
+kind: RayCluster
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  maxWorkers: {{ include "ray.clusterMaxWorkers" . }}
+  upscalingSpeed: 1.0
+  # If a node is idle for this many minutes, it will be removed.
+  idleTimeoutMinutes: 5
+  # Specify the pod type for the ray head node (as configured below).
+  headPodType: rayHeadNode
+  headServicePorts: {{- toYaml .Values.headServicePorts | nindent 4 }}
+  podTypes:
+    - name: rayHeadNode
+      # Minimum number of Ray workers of this Pod type.
+      minWorkers: {{.Values.head.minWorkers}}
+      # Maximum number of Ray workers of this Pod type. Takes precedence over minWorkers.
+      maxWorkers: {{.Values.head.maxWorkers}}
+      podConfig:
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          # Automatically generates a name for the pod with this prefix.
+          generateName: "{{.Chart.Name}}-ray-head-"
+        spec:
+          restartPolicy: Never
+          # This volume allocates shared memory for Ray to use for its plasma
+          # object store. If you do not provide this, Ray will fall back to
+          # /tmp which cause slowdowns if is not a shared memory volume.
+          volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+          - name: workspace
+            persistentVolumeClaim:
+              claimName: workspace              
+          {{- if .Values.head.tolerations }}
+          tolerations: {{- toYaml .Values.head.tolerations | nindent 12 }}
+          {{- end }}
+          {{- if .Values.head.nodeSelector }}
+          nodeSelector: {{- toYaml .Values.head.nodeSelector | nindent 12 }}
+          {{- end }}
+          {{- if .Values.head.affinity }}
+          affinity: {{- toYaml .Values.head.affinity | nindent 12 }}
+          {{- end }}
+          imagePullSecrets:
+            - name: gcr-registry-key
+          initContainers:
+          - name: git-cloner
+            image: {{.Values.head.workspace.image}}
+            command: ["/bin/sh"]
+            args:
+              - -c
+              - |
+                cd /workspace;
+                git config --global user.name "$GIT_USERNAME"; 
+                git config --global user.email $GIT_USEREMAIL; 
+                git clone $GIT_REPO $GIT_FOLDERNAME;
+            env:
+              - name: TZ
+                value: Asia/Tokyo
+              - name: GIT_REPO
+                value: {{.Values.git_repo}}
+              - name: GIT_USERNAME
+                value: {{.Values.git_username}}              
+              - name: GIT_USEREMAIL
+                value: {{.Values.git_useremail}}
+              - name: GIT_FOLDERNAME
+                value: {{.Values.git_foldername}}
+            securityContext:
+              runAsUser: 0
+            volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+          containers:
+          - name: mlworkspace
+            image: {{.Values.head.workspace.image}}
+            # command: ["/bin/sh"]
+            # args:
+            #   - -c
+            #   - |
+            #     git config --global user.name "$GIT_USERNAME"; git config --global user.email $GIT_USEREMAIL; 
+            env:
+              - name: TZ
+                value: Asia/Tokyo
+              - name: GIT_REPO
+                value: {{.Values.git_repo}}
+              - name: GIT_USERNAME
+                value: {{.Values.git_username}}              
+              - name: GIT_USEREMAIL
+                value: {{.Values.git_useremail}}
+              - name: GIT_FOLDERNAME
+                value: {{.Values.git_foldername}}            
+            ports:
+            - containerPort: 8080
+              name: workspace
+            volumeMounts:
+              - mountPath: /dev/shm
+                name: dshm            
+              - mountPath: /workspace
+                name: workspace
+            {{- if or (.Values.head.workspace.numCPU) (.Values.head.workspace.memory)}}
+            resources:
+              requests:
+                {{- if .Values.head.workspace.numCPU }}
+                cpu: {{ .Values.head.workspace.numCPU }}
+                {{- end }}
+                {{- if .Values.head.workspace.memory }}
+                memory: {{ .Values.head.workspace.memory }}
+                {{- end }}
+              limits:
+                {{- if .Values.head.workspace.numCPU }}
+                cpu: {{ .Values.head.workspace.numCPU }}
+                {{- end }}
+                {{- if .Values.head.workspace.memory }}
+                memory: {{ .Values.head.workspace.memory }}
+                {{- end }}
+                {{- if .Values.head.workspace.numGPU }}
+                nvidia.com/gpu: {{ .Values.head.workspace.numGPU }}
+                {{- end }}
+            {{- end }}
+          - name: ray-node
+            imagePullPolicy: Always
+            image: {{.Values.head.image}}
+            # Do not change this command - it keeps the pod alive until it is
+            # explicitly killed.
+            command: ["/bin/bash", "-c", "--"]
+            args: 
+             - |
+              trap : TERM INT;sleep infinity & wait;
+            securityContext:
+              runAsUser: 0                    
+            ports:
+            - containerPort: 6379  # Redis port
+            - containerPort: 10001  # Used by Ray Client
+            - containerPort: 8265  # Used by Ray Dashboard
+            # This volume allocates shared memory for Ray to use for its plasma
+            # object store. If you do not provide this, Ray will fall back to
+            # /tmp which cause slowdowns if is not a shared memory volume.
+            volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /workspace
+              name: workspace
+            env:
+              - name: TZ
+                value: Asia/Tokyo
+              - name: NVIDIA_VISIBLE_DEVICES
+                value: all
+              - name: CUDAHOME
+                value: /usr/local/cuda/                
+              {{- if .Values.head.numGPU }}
+              - name: CUDA_VISIBLE_DEVICES                
+                value: "{{.Values.head.numGPU}}"
+              {{- end }}                
+            {{- if or (.Values.head.numCPU) (.Values.head.memory)}}
+            resources:
+              requests:
+                {{- if .Values.head.numCPU }}
+                cpu: {{ .Values.head.numCPU }}
+                {{- end }}
+                {{- if .Values.head.memory }}
+                memory: {{ .Values.head.memory }}
+                {{- end }}
+              limits:
+                {{- if .Values.head.numCPU }}
+                cpu: {{ .Values.head.numCPU }}
+                {{- end }}
+                {{- if .Values.head.memory }}
+                memory: {{ .Values.head.memory }}
+                {{- end }}
+                {{- if .Values.head.numGPU }}
+                nvidia.com/gpu: {{ .Values.head.numGPU }}
+                {{- end }}
+            {{- end }}
+
+  {{- range $key, $val := .Values.workers }}
+    - name: {{ $key }}
+      minWorkers: {{ $val.minWorkers }}
+      maxWorkers: {{ $val.maxWorkers }}
+      {{- if $val.rayResources }}
+      rayResources:
+        {{- toYaml $val.rayResources | nindent 8 }}
+      {{- end }}  
+      podConfig:
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          generateName: {{ kebabcase $key }}-
+        spec:
+          restartPolicy: Never
+          # This volume allocates shared memory for Ray to use for its plasma
+          # object store. If you do not provide this, Ray will fall back to
+          # /tmp which cause slowdowns if is not a shared memory volume.
+          volumes:
+          - name: dshm
+            emptyDir:
+              medium: Memory
+          {{- if .tolerations }}
+          tolerations: {{- toYaml .tolerations | nindent 12 }}
+          {{- end }}
+          {{- if .nodeSelector }}
+          nodeSelector: {{- toYaml .nodeSelector | nindent 12 }}
+          {{- end }}
+          {{- if .affinity }}
+          affinity: {{- toYaml .affinity | nindent 12 }}
+          {{- end }}   
+          imagePullSecrets:
+            - name: gcr-registry-key          
+          containers:
+          - name: ray-node
+            imagePullPolicy: Always
+            image: {{ .image }}
+            # Do not change this command - it keeps the pod alive until it is
+            # explicitly killed.
+            command: ["/bin/bash", "-c", "--"]
+            args: 
+            - | 
+              trap : TERM INT; sleep infinity & wait;
+            ports:
+            - containerPort: 6379  # Redis port
+            - containerPort: 10001  # Used by Ray Client
+            - containerPort: 8265  # Used by Ray Dashboard
+            - containerPort: 8000 # Used by Ray Serve
+            # This volume allocates shared memory for Ray to use for its plasma
+            # object store. If you do not provide this, Ray will fall back to
+            # /tmp which cause slowdowns if is not a shared memory volume.
+            volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            env:
+              - name: TZ
+                value: Asia/Tokyo
+              - name: NVIDIA_VISIBLE_DEVICES
+                value: all
+              - name: CUDAHOME
+                value: /usr/local/cuda/
+              {{- if .numGPU }}
+              - name: CUDA_VISIBLE_DEVICES
+                value: "{{.numGPU}}"
+              {{- end }}
+            {{- if or .numCPU .numGPU }}
+            resources:
+              {{- if or .numCPU .memory }}            
+              requests:
+                {{- if .numCPU }}
+                cpu: {{ .numCPU }}
+                {{- end }}
+                {{- if .memory }}
+                memory: {{ .memory }}
+                {{- end }}
+              {{- end }}                
+              limits:
+                {{- if .numCPU }}
+                cpu: {{ .numCPU }}
+                {{- end }}
+                {{- if .memory }}
+                memory: {{ .memory }}
+                {{- end }}
+                {{- if .numGPU }}
+                nvidia.com/gpu: {{ .numGPU }}
+                {{- end }}
+            {{- end }}
+  {{- end }}
+  headStartRayCommands: {{- toYaml .Values.headStartRayCommands  | nindent 4}}
+  workerStartRayCommands: {{- toYaml .Values.workerStartRayCommands  | nindent 4}}

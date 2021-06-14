@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: workspace
+  namespace: {{.Release.Namespace}}
+  labels:
+    app: workspace
+spec:
+  ports:
+  - port: 8080
+    name: workspace
+  clusterIP: None
+  selector:
+    app: workspace
