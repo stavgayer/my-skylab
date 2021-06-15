@@ -12,6 +12,13 @@ spec:
       labels:
         app.kubernetes.io/name: app-2048
     spec:
+      nodeSelector:
+        nodetype: m5.xlarge
+      tolerations:
+        - effect: NoSchedule
+          key: role
+          operator: Equal
+          value: worker
       containers:
       - image: alexwhen/docker-2048
         imagePullPolicy: Always
