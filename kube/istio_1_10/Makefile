@@ -47,5 +47,14 @@ uninstall_istio_1_10_1:
 install_others: build
 	kubectl --kubeconfig=$(KUBECONFIG) --namespace $(NAMESPACE) apply -f ../../.build/$(NAME).yaml;
 
+	pushd ../../.build/$(NAME)-$(ISTIO_VERSION);\
+		kubectl --kubeconfig=$(KUBECONFIG)  apply --namespace $(NAMESPACE)  -f samples/addons/prometheus.yaml;\
+		kubectl --kubeconfig=$(KUBECONFIG)  apply --namespace $(NAMESPACE)  -f samples/addons/grafana.yaml;\
+	popd
+
 un_install_others:
+	pushd ../../.build/$(NAME)-$(ISTIO_VERSION);\
+		kubectl --kubeconfig=$(KUBECONFIG)  delete --namespace $(NAMESPACE)  -f samples/addons/prometheus.yaml;\
+		kubectl --kubeconfig=$(KUBECONFIG)  delete --namespace $(NAMESPACE)  -f samples/addons/grafana.yaml;\
+	popd
 	kubectl --kubeconfig=$(KUBECONFIG) --namespace $(NAMESPACE) delete -f ../../.build/$(NAME).yaml;
