@@ -1,0 +1,19 @@
+{
+    "tableName": "students",
+    "segmentsConfig": {
+        "timeColumnName": "timestampInEpoch",
+        "timeType": "MILLISECONDS",
+        "replication": "1",
+        "schemaName": "students"
+    },
+    "tableIndexConfig": {
+        "invertedIndexColumns": [],
+        "loadMode": "MMAP"
+    },
+    "tenants": {
+        "broker": "DefaultTenant",
+        "server": "DefaultTenant"
+    },
+    "tableType": "OFFLINE",
+    "metadata": {}
+}
