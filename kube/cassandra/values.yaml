@@ -1,0 +1,43 @@
+cassandratools:
+  image: asia.gcr.io/unext-recommender-system/ds-ds-starfish-cassandratools:latest
+dataCapacity: "100Gi"
+configMapName: "cassandra-configmap-v1"
+dataStorageClass: "gp2"
+
+tolerations: 
+  - key: role
+    operator: Equal
+    value: worker
+    effect: NoSchedule
+
+datacenter: asianortheast1
+topology:
+  dc:
+    - name: asianortheast1
+      nodesPerRacks: 3
+      labels: 
+          topology.kubernetes.io/region: ap-northeast-1
+      rack:
+        - name: zoneb
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                - matchExpressions:
+                  - key: node.kubernetes.io/instance-type
+                    operator: In
+                    values:
+                    - m5.xlarge               
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      app: cassandracluster
+                      cassandracluster: cassandra
+                weight: 100
+          labels: 
+            topology.kubernetes.io/zone: ap-northeast-1c
+
+resources: {}
+storageConfigs: []

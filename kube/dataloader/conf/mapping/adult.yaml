@@ -1,0 +1,52 @@
+tables:
+  - id: adultrecommendation
+    table: adultrecommendation
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/adultreco_personalized.csv.implicit_bpr_2019-09-18.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/test/adultreco_personalized_sstable.tar.gz
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    primaryKey: cuid, feature_public_code
+    columns:
+      - col: cuid
+      - col: feature_public_code
+      - col: sakuhin_codes
+      - col: feature_score
+        type: decimal
+  - id: adult_coldstart
+    table: adult_coldstart
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/adult/adult_coldstart.csv.gz  
+    sstable: s3://unext-datascience/starfish/keep/cassandra/adult/adult_coldstart_sstable.csv.gz
+    primaryKey: feature_public_code, feature_score
+    orderBy: feature_score DESC
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    columns:
+      - col: feature_public_code
+      - col: sakuhin_codes
+      - col: sakuhin_scores
+      - col: feature_score
+        type: decimal
+  # - id: adult_relatedcontent_reco
+  #   keyspace: starship
+  #   table: adult_relatedcontent_reco
+  #   file: s3://unext-datascience/starfish/keep/cassandra/adult/adult_relatedcontent_reco.csv.gz
+  #   sstable: s3://unext-datascience/starfish/keep/cassandra/adult/adult_relatedcontent_reco_sstable.csv.gz
+  #   primaryKey: public_code
+  #   columns:
+  #     - col: public_code
+  #       headerName: adult_sakuhin_public_code
+  #     - col: related_items
+  #       headerName: rs_list
+  # - id: adult_similarface_reco
+  #   keyspace: starship
+  #   table: adult_similarface_reco
+  #   file: s3://unext-datascience/starfish/keep/cassandra/adult/adult_similarface_reco.csv.gz
+  #   sstable: s3://unext-datascience/starfish/keep/cassandra/adult/adult_similarface_reco_sstable.csv.gz
+  #   primaryKey: public_code
+  #   columns:
+  #     - col: public_code
+  #       headerName: adult_sakuhin_public_code
+  #     - col: related_items
+  #       headerName: rs_list        

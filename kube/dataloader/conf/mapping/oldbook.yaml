@@ -1,0 +1,23 @@
+tables:
+  - id: oldbook_ibrecommendations
+    table: oldbook_recommendation
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/bookreco/oldbook_ibrecommendations.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/bookreco/oldbook_ibrecommendations_sstable.tar.gz
+    primaryKey: (bsid,view_type), recommendations
+    columns:
+      - col: bsid
+      - col: view_type
+        defaultValue: "recommendations"      
+      - col: recommendations
+  - id: oldbook_relatedbooks
+    table: oldbook_recommendation
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/bookreco/oldbook_relatedbooks.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/bookreco/oldbook_relatedbooks.tar.gz
+    primaryKey: (bsid,view_type), recommendations
+    columns:
+      - col: bsid
+      - col: view_type
+        defaultValue: "related"
+      - col: recommendations

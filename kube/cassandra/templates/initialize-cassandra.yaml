@@ -1,0 +1,48 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: initialize-cassandra
+spec:
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      name: initialize-cassandra
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: starship-configurations
+          configMap:
+            name: starship-cassandra-configuration
+        - name: starship-cassandra-scripts
+          configMap:
+            name: starship-cassandra-scripts          
+      imagePullSecrets:
+        - name: gcr-registry-key                
+      initContainers:
+      - name: init-keyspace
+        image: {{.Values.cassandratools.image}}
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: starship-configurations
+          mountPath: /configurations
+        envFrom:
+        - secretRef:
+            name: aws-secrets
+        env:
+          - name: CASSANDRA_HOST
+            value: cassandra
+        args:
+          - |
+            echo '=> Waiting for Cassandra to become available'
+            /scripts/wait-for-it.sh -t 300 -h $CASSANDRA_HOST -p 9042
+            echo '=> Cassandra is available'
+            
+            sleep 60
+            cqlsh -f /configurations/keyspaces.cql $CASSANDRA_HOST;
+
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']            

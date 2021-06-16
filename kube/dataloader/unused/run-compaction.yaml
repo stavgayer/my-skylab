@@ -1,0 +1,59 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: starship-compaction-cassandra-jobs
+spec:
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      name: starship-compaction-cassandra-jobs
+    spec:
+      restartPolicy: Never        
+      volumes:
+        - name: starship-data-mappings
+          configMap:
+            name: starship-data-mappings
+      initContainers:
+      - name: insert-ippan-cassandra
+        image: {{.Values.images.cassandratools}}
+        imagePullPolicy: Always       
+        envFrom: 
+        - secretRef:
+            name: aws-secrets
+        volumeMounts:
+        - name: starship-data-mappings
+          mountPath: /datamappings
+        args:
+          - |
+            nodetool compact starship rec_general_unext
+      # - name: insert-history-cassandra
+      #   image: {{.Values.images.cassandratools}}
+      #   imagePullPolicy: Always       
+      #   envFrom: 
+      #   - secretRef:
+      #       name: aws-secrets
+      #   volumeMounts:
+      #   - name: starship-data-mappings
+      #     mountPath: /datamappings
+      #   args:
+      #     - |
+      #       cassandratools cassandraload -d /data -m /datamappings/history.yaml -h cassandra;            
+      # - name: insert-adult-cassandra
+      #   image: {{.Values.images.cassandratools}}
+      #   imagePullPolicy: Always       
+      #   envFrom:
+      #   - secretRef:
+      #       name: aws-secrets
+      #   volumeMounts:
+      #   - name: starship-data-mappings
+      #     mountPath: /datamappings
+      #   args:
+      #     - |
+      #       cassandratools cassandraload -d /data -m /datamappings/adult.yaml -h cassandra;
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']
+        

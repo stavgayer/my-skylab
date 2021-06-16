@@ -1,0 +1,49 @@
+images: 
+  cassandratools: asia.gcr.io/unext-recommender-system/ds-ds-starfish-cassandratools:latest
+
+backups:
+  - name: jidou-api-coldstart
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/ippanreco/ippan/general/yaml/alt_jidou_coldstart.yaml
+  - name: jidou-api-alt-fifty
+    envs: staging,prod
+    file: s3://unext-datascience-prod/jobs/ippanreco/ippan/general/yaml/alt_jidou.yaml
+  - name: ippan-others
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/ippanreco/ippan/general/yaml/reco_others.yaml
+  - name: ippan-titledetail
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/ippanreco/ippan/general/yaml/reco_titledetail.yaml
+  - name: autoalt-ippan-sakuhin-page
+    envs: dev,staging,prod
+    file: s3://unext-datascience/alts/yaml/autoalt_ippan_sakuhin_page.yaml
+  - name: autoalt-ippan-features
+    envs: dev,staging,prod
+    file: s3://unext-datascience/alts/yaml/autoalt_ippan_sakuhin_features.yaml
+  - name: book-reco
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/bookreco/bookreco/yaml/book_reco.yaml
+  - name: book-rerank
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/bookreco/bookreco/yaml/book_reranking.yaml
+  - name: semiadult-others
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/semiadult/semiadult/yaml/reco_coldstart.yaml
+  - name: semiadult-reco
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/semiadult/semiadult/yaml/reco_data.yaml
+  - name: autoalt-semiadult-page
+    envs: dev,staging,prod
+    file: s3://unext-datascience/alts/yaml/autoalt_semiadult_page.yaml
+  - name: autoalt-semiadult-features
+    envs: dev,staging,prod
+    file: s3://unext-datascience/alts/yaml/autoalt_semiadult_features.yaml
+  - name: oldbook-reco
+    envs: dev
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/bookreco/oldbook.yaml
+  - name: ippan-toppick
+    envs: dev,staging,prod
+    file: s3://unext-datascience-prod/jobs/ippanreco/ippan/general/yaml/reco_toppick.yaml
+  - name: demo-candidates
+    envs: dev
+    file: s3://unext-datascience/alts/alt/yaml/demo_candidates.yaml

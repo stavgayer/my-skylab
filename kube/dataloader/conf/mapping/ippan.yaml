@@ -1,0 +1,167 @@
+tables:
+  - id: rec_general_unext
+    table: rec_general_unext
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_general.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_general_sstable.tar.gz
+    primaryKey: (user_multi_account_id, feature_home_display_flg), feature_public_code
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 604800
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int
+      - col: feature_score
+        type: decimal
+      - col: feature_public_flg
+        type: int
+      - col: feature_display_flg
+        type: int
+      - col: feature_home_display_flg
+        type: int
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_general_genre_unext
+    table: rec_general_genre_unext
+    keyspace: starship
+    inheritsFrom: rec_general_unext
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_general.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_general_genre_sstable.tar.gz
+    primaryKey: user_multi_account_id, genre_tag_code, feature_public_code
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 604800
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: genre_tag_code
+        split: "|"
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int
+      - col: feature_score
+        type: decimal
+      - col: feature_public_flg
+        type: int
+      - col: feature_display_flg
+        type: int
+      - col: feature_home_display_flg
+        type: int
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_toppick
+    table: rec_toppick
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/toppick.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/toppick_sstable.tar.gz
+    primaryKey: user_multi_account_id, block
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 604800
+    columns:
+      - col: user_multi_account_id
+      - col: block
+        type: int
+      - col: sakuhin_codes
+      - col: score
+      - col: create_date
+        type: int
+      - col: feature_name
+      - col: sub_text
+  - id: rec_general_unext_coldstart
+    table: rec_general_unext
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/starship_coldstart.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/starship_coldstart_sstable.tar.gz
+    primaryKey: (user_multi_account_id, feature_home_display_flg), feature_public_code
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 7776000
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int
+      - col: feature_score
+        type: decimal
+      - col: feature_public_flg
+        type: int
+      - col: feature_display_flg
+        type: int
+      - col: feature_home_display_flg
+        type: int
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_general_genre_unext_coldstart
+    table: rec_general_genre_unext
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/starship_coldstart.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/starship_genre_coldstart_sstable.tar.gz
+    primaryKey: user_multi_account_id, genre_tag_code, feature_public_code
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 7776000
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: genre_tag_code
+        split: "|"
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int
+      - col: feature_score
+        type: decimal
+      - col: feature_public_flg
+        type: int
+      - col: feature_display_flg
+        type: int
+      - col: feature_home_display_flg
+        type: int
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_display_feature
+    table: rec_display_feature
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/display_feature.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/display_feature_sstable.tar.gz
+    primaryKey: feature_public_code
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 7776000
+    columns:
+      - col: feature_public_code
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int
+      - col: feature_public_flg
+        type: int
+      - col: feature_display_flg
+        type: int
+      - col: feature_home_display_flg
+        type: int
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_ippan_postplay
+    table: rec_ippan_postplay
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_ippan_postplay.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/unext/ippan/rec_ippan_postplay_sstable.tar.gz
+    primaryKey: uid
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    ttl: 7776000
+    columns:
+      - col: uid
+      - col: rec_sakuhin_codes
+        maxChars: 40000
+      - col: create_date
+        type: int

@@ -32,7 +32,7 @@ pinot:
       configs: |-
         pinot.set.instance.id.to.hostname=true
         controller.task.scheduler.enabled=true
-        controller.data.dir=s3://unext-datascience/starship/pinot/
+        controller.data.dir=s3://unext-datascience/starship/output/
         controller.enable.split.commit=true
         pinot.controller.storage.factory.class.s3=org.apache.pinot.plugin.filesystem.S3PinotFS
         pinot.controller.storage.factory.s3.region=ap-northeast-1

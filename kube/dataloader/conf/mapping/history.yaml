@@ -1,0 +1,24 @@
+tables:
+  - id: ippan_history
+    table: ippan_history
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/watched_list_ippan.csv.gz
+    # file: s3://unext-datascience/starfish/keep/cassandra/ippan/watched_list_ippan_small.csv.gz
+    # sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/watched_list_ippan_small_sstable.tar.gz
+    # sstable: gs://starship-storage/starfish/keep/cassandra/ippan/watched_list_ippan_small_sstable.tar.gz
+    # sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/watched_list_ippan_sstable.tar.gz
+    sstable: gs://starship-storage/starfish/keep/cassandra/ippan/watched_list_ippan_sstable.tar.gz
+    primaryKey: userid, item
+    columns:
+      - col: userid
+      - col: item
+  # - id: adult_history
+  #   table: adult_history
+  #   keyspace: starship
+  #   file: s3://unext-datascience/starfish/keep/cassandra/adult/watched_list.csv.gz
+  #   sstable: s3://unext-datascience/starfish/keep/cassandra/adult/watched_list_sstable.tar.gz
+  #   # sstable: gs://starship-storage/starfish/keep/cassandra/adult/watched_list_sstable.tar.gz
+  #   primaryKey: userid, item
+  #   columns:
+  #     - col: userid
+  #     - col: item

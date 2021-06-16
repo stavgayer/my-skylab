@@ -1,0 +1,29 @@
+tables:      
+  - id: book_reranking
+    table: books_reranking
+    keyspace: starship
+    file: s3://unext-datascience/jobs/bookreco/free_books_reranked.csv.gz
+    sstable: s3://unext-datascience/jobs/bookreco/free_books_reranked_sstable.tar.gz
+    primaryKey: user_id, ranking_type
+    orderBy: ranking_type DESC
+    columns:
+      - col: user_id
+      - col: ranked_books
+      - col: ranking_type
+        defaultValue: "FREE_MANGA"
+  - id: book_reco
+    table: books_recommendation
+    keyspace: starship
+    file: s3://unext-datascience/jobs/bookreco/implicit_bpr_reco.csv.gz
+    sstable: s3://unext-datascience/jobs/bookreco/implicit_bpr_reco_sstable.tar.gz
+    primaryKey: user_id, location_type, view_flag, score, book_sakuhin_public_code
+    orderBy: location_type DESC, view_flag ASC, score DESC
+    columns:
+      - col: user_id
+      - col: book_sakuhin_public_code
+      - col: score
+        type: decimal
+      - col: view_flag
+        defaultValue: 0
+      - col: location_type
+        defaultValue: "HOME"        

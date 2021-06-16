@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: cassandratools-busybox
+spec:
+  selector:
+    matchLabels:
+      app: cassandratools-busybox
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cassandratools-busybox
+    spec:
+      restartPolicy: Always
+      volumes:
+        - name: starship-data-mappings
+          configMap:
+            name: starship-data-mappings      
+        - name: starship-cassandra-scripts
+          configMap:
+            name: starship-cassandra-scripts
+        - name: gcp-secret            
+          secret:
+            secretName: gcp-secret
+      containers:
+      - name: busybox
+        image: {{.Values.images.cassandratools}}
+        imagePullPolicy: Always
+        env:
+          - name: CASSANDRA_HOST
+            value: cassandra
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/credential.json
+        envFrom:
+        - secretRef:
+            name: aws-secrets
+        volumeMounts:
+        - name: starship-data-mappings
+          mountPath: /datamappings
+        - name: gcp-secret
+          mountPath: /gcpsecret
+        - name: starship-cassandra-scripts
+          mountPath: /cassandrascripts                  
+        args:
+          - sleep 3600;

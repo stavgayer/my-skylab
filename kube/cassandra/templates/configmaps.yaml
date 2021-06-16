@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: starship-cassandra-configuration
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cassandra  
+data:
+{{ (tpl (.Files.Glob ("conf/sqls/*") ).AsConfig . ) | indent 2 }}
+---
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: starship-cassandra-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: cassandra  
+data:
+{{ (tpl (.Files.Glob ("conf/scripts/*") ).AsConfig . ) | indent 2 }}
+---

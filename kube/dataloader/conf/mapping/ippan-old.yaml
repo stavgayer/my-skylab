@@ -1,0 +1,108 @@
+tables:
+  - id: rec_general
+    table: rec_general_new
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/rec_general_new_feature.2019-12-10.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/rec_general_new_feature.2019-12-10_sstable.tar.gz
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"    
+    primaryKey: user_multi_account_id,feature_public_code
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: sakuhin_codes
+        maxChars: 40000
+      - col: feature_score
+        type: decimal
+      - col: feature_ranking
+      - col: genre_tag_code
+      - col: platform
+      - col: film_rating_order
+      - col: feature_public_flg
+      - col: feature_display_flg
+      - col: feature_home_display_flg
+      - col: feature_public_start_datetime
+      - col: feature_public_end_datetime
+  - id: rec_general_coldstart
+    inheritsFrom: rec_general
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/ippan_coldstart.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/meta/ippan_coldstart_sstable.tar.gz
+  - id: rec_general_genre_user_feature
+    table: genre_user_feature
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/rec_general_new_feature.2019-12-10.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/genre_user_feature.2019-12-10_sstable.tar.gz
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    primaryKey: genre_tag_code, user_multi_account_id, feature_score, feature_public_code
+    orderBy: user_multi_account_id ASC,feature_score DESC
+    columns:
+      - col: user_multi_account_id
+      - col: feature_public_code
+      - col: genre_tag_code
+        split: "|"
+      - col: feature_score
+        type: decimal   
+  - id: rec_general_genre_user_feature_coldstart
+    inheritsFrom: rec_general_genre_user_feature
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/ippan_coldstart.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/ippan_coldstart_genre_user_feature.2019-12-10_sstable.tar.gz
+
+  - id: ippan_genre_random_sakuhin
+    table: ippan_genre_random_sakuhin
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/genre_random_sakuhin.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/genre_random_sakuhin_sstable.tar.gz
+    primaryKey: main_genre_code, sakuhin_public_code
+    columns:
+      - col: main_genre_code
+      - col: sakuhin_public_code
+  - id: ippan_relatedcontent
+    keyspace: starship
+    table: ippan_relatedcontent
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/ippan_content_reco.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/ippan/ippan_content_reco_sstalb.csv.gz
+    primaryKey: public_code
+    columns:
+      - col: public_code
+        headerName: sakuhin_public_code
+      - col: related_items
+        headerName: rs_list
+  - id: user_age_sex
+    table: user_age_sex
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/meta/user_age_sex.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/meta/user_age_sex_sstable.tar.gz
+    primaryKey: user_multi_account_id
+    columns:
+      - col: user_multi_account_id
+      - col: age
+      - col: sex
+  - id: genre_to_tag
+    table: genre_to_tag
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/genre/genre_to_tag.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/genre/genre_to_tag_sstable.tar.gz
+    primaryKey: genre_main_code
+    columns:
+      - col: genre_main_code
+      - col: genre_tag_code
+  - id: top_pick
+    table: top_pick
+    keyspace: starship
+    file: s3://unext-datascience/starfish/keep/cassandra/ippan/toppick20190905_0724.csv.gz
+    sstable: s3://unext-datascience/starfish/keep/cassandra/test/toppick20190905_0724_sstable.tar.gz
+    compaction: "{'class': 'org.apache.cassandra.db.compaction.LeveledCompactionStrategy'}"
+    compression: "{'chunk_length_kb': '32', 'sstable_compression': 'LZ4Compressor'}"
+    primaryKey: user_id, block
+    columns:
+      - col: user_id
+      - col: block
+        type: int
+        headerName: order
+      - col: sakuhin_id
+      - col: feature_name
+      - col: sub_text
+      - col: rec_label1
+      - col: rec_label2
+      - col: score

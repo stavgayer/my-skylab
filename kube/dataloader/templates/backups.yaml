@@ -1,0 +1,48 @@
+{{- $root := . -}}
+{{- $env := substr 0 3 .Values.env -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: starship-dataloader-cassandra-jobs
+spec:
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      name: starship-dataloader-cassandra-jobs
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: starship-data-mappings
+          configMap:
+            name: starship-data-mappings
+        - name: gcs-secret
+          secret:
+            secretName: gcs-secret
+      imagePullSecrets:
+        - name: gcr-registry-key            
+      initContainers:  
+{{- range $backup := .Values.backups }}
+    {{ if contains $env $backup.envs }}
+        - name: insert-{{ $backup.name}}
+          image: {{$root.Values.images.cassandratools}}
+          imagePullPolicy: Always       
+          envFrom: 
+          - secretRef:
+              name: aws-secrets
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/gcs_credential.json
+          volumeMounts:
+          - name: gcs-secret
+            mountPath: /gcpsecret
+          args:
+            - |
+              cassandratools cassandraload -d /data -m {{ $backup.file}} -h cassandra;     
+    {{ end }}
+{{- end }}
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']

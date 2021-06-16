@@ -1,0 +1,115 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: starship-dataloader-cassandra-jobs
+spec:
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      name: starship-dataloader-cassandra-jobs
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: starship-data-mappings
+          configMap:
+            name: starship-data-mappings
+        - name: gcs-secret
+          secret:
+            secretName: gcs-secret
+      initContainers:
+        - name: insert-ippancoldstart-cassandra
+          image: {{.Values.images.cassandratools}}
+          imagePullPolicy: Always       
+          envFrom: 
+          - secretRef:
+              name: aws-secrets
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/gcs_credential.json
+          volumeMounts:
+          - name: gcs-secret
+            mountPath: /gcpsecret
+          args:
+            - |
+              cassandratools cassandraload -d /data -m s3://unext-datascience-prod/jobs/ippanreco/unext_implicit/yaml/reco_coldstart.yaml -h cassandra;      
+        - name: insert-ippan-cassandra
+          image: {{.Values.images.cassandratools}}
+          imagePullPolicy: Always       
+          envFrom: 
+          - secretRef:
+              name: aws-secrets
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/gcs_credential.json              
+          volumeMounts:
+          - name: gcs-secret
+            mountPath: /gcpsecret
+          args:
+            - |
+              cassandratools cassandraload -d /data -m s3://unext-datascience-prod/jobs/ippanreco/unext_implicit/yaml/reco_data.yaml -h cassandra;
+     
+        # - name: insert-test-data
+        #   image: {{.Values.images.cassandratools}}
+        #   imagePullPolicy: Always       
+        #   envFrom: 
+        #   - secretRef:
+        #       name: aws-secrets
+        #   env:
+        #   - name: GOOGLE_APPLICATION_CREDENTIALS
+        #     value: /gcpsecret/gcs_credential.json
+        #   volumeMounts:
+        #   - name: starship-data-mappings
+        #     mountPath: /datamappings
+        #   - name: gcs-secret
+        #     mountPath: /gcpsecret          
+        #   args:
+        #     - |
+        #       cassandratools cassandraload -d /data -m s3://unext-datascience/jobs/mapping.yaml -h cassandra;
+      # - name: insert-book-cassandra
+      #   image: {{.Values.images.cassandratools}}
+      #   imagePullPolicy: Always       
+      #   envFrom: 
+      #   - secretRef:
+      #       name: aws-secrets
+      #   volumeMounts:
+      #   - name: starship-data-mappings
+      #     mountPath: /datamappings
+      #   args:
+      #     - |
+      #       cassandratools cassandraload -d /data -m /datamappings/book.yaml -h cassandra;            
+      # - name: insert-history-cassandra
+      #   image: {{.Values.images.cassandratools}}
+      #   imagePullPolicy: Always       
+      #   envFrom: 
+      #   - secretRef:
+      #       name: aws-secrets
+      #   env:
+      #   - name: GOOGLE_APPLICATION_CREDENTIALS
+      #     value: /gcpsecret/gcs_credential.json
+      #   volumeMounts:
+      #   - name: starship-data-mappings
+      #     mountPath: /datamappings
+      #   - name: gcp-secret
+      #     mountPath: /gcpsecret          
+      #   args:
+      #     - |
+      #       cassandratools cassandraload -d /data -m /datamappings/history.yaml -h cassandra;            
+      # - name: insert-adult-cassandra
+      #   image: {{.Values.images.cassandratools}}
+      #   imagePullPolicy: Always       
+      #   envFrom:
+      #   - secretRef:
+      #       name: aws-secrets
+      #   volumeMounts:
+      #   - name: starship-data-mappings
+      #     mountPath: /datamappings
+      #   args:
+      #     - |
+      #       cassandratools cassandraload -d /data -m /datamappings/adult.yaml -h cassandra;
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']
+        

@@ -1,0 +1,6 @@
+dependencies:
+- name: cassandra-reaper
+  repository: https://kubernetes-charts-incubator.storage.googleapis.com/
+  version: 0.2.1
+digest: sha256:4576e5fc16eee654d00f6b4f5d3d7f48ec76b053c747ec95da5c76b5d91b958a
+generated: "2020-04-11T10:39:50.6298+09:00"

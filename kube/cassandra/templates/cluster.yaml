@@ -1,0 +1,42 @@
+apiVersion: "db.orange.com/v1alpha1"
+kind: "CassandraCluster"
+metadata:
+  name: cassandra
+  namespace: {{ .Release.Namespace }}
+  labels:
+    cluster: starship-cassandra
+    version: {{ .Chart.Version }}
+spec:
+  cassandraImage: cassandra:3.11
+  bootstrapImage: orangeopensource/cassandra-bootstrap:0.1.4
+  configMapName: {{.Values.configMapName}}
+  dataCapacity: {{.Values.dataCapacity}}
+  dataStorageClass: {{.Values.dataStorageClass}}
+  imagepullpolicy: IfNotPresent  
+  hardAntiAffinity: true           # Do we ensure only 1 cassandra on each node ?
+  deletePVC: true
+  autoPilot: true
+  gcStdout: true
+  autoUpdateSeedList: true
+  maxPodUnavailable: 1
+  runAsUser: 999
+{{- with .Values.storageConfigs }}
+  storageConfigs:
+{{toYaml . | indent 6}}
+{{- end }}
+{{- with .Values.sidecarConfigs }}
+  sidecarConfigs:
+{{toYaml . | indent 6}}
+{{- end }}
+{{- with .Values.tolerations }}
+  pod:
+    tolerations: 
+{{toYaml . | indent 6}}
+{{- end }}
+
+  topology: 
+{{toYaml .Values.topology | indent 4}}  
+{{- with .Values.resources }}
+  resources: 
+{{toYaml . | indent 4}}
+{{- end }}

@@ -1,0 +1,56 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: starship-dataloader-cassandra-book-jobs
+spec:
+  template:
+    metadata:
+      namespace: {{ .Release.Namespace }}
+      name: starship-dataloader-cassandra-book-jobs
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: starship-data-mappings
+          configMap:
+            name: starship-data-mappings
+        - name: gcs-secret
+          secret:
+            secretName: gcs-secret
+      initContainers:
+        - name: insert-bookreco-cassandra
+          image: {{.Values.images.cassandratools}}
+          imagePullPolicy: Always       
+          envFrom: 
+          - secretRef:
+              name: aws-secrets
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/gcs_credential.json              
+          volumeMounts:
+          - name: gcs-secret
+            mountPath: /gcpsecret          
+          args:
+            - |
+              cassandratools cassandraload -d /data -m s3://unext-datascience-prod/jobs/bookreco/bookreco/yaml/book_reco.yaml -h cassandra;
+        - name: insert-bookreranking-cassandra
+          image: {{.Values.images.cassandratools}}
+          imagePullPolicy: Always       
+          envFrom: 
+          - secretRef:
+              name: aws-secrets
+          env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /gcpsecret/gcs_credential.json              
+          volumeMounts:
+          - name: gcs-secret
+            mountPath: /gcpsecret          
+          args:
+            - |
+              cassandratools cassandraload -d /data -m s3://unext-datascience-prod/jobs/bookreco/bookreco/yaml/book_reranking.yaml -h cassandra;
+
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']

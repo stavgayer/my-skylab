@@ -1,0 +1,6 @@
+dependencies:
+- name: cassandra-reaper
+  repository: file://../cassandra-reaper
+  version: 0.2.2
+digest: sha256:ccaf8cb9d07da25026a4e417cc2df4f2b525a5a76f60de1419451d9445f5f24e
+generated: "2020-10-27T13:52:55.539989+09:00"
