@@ -1,0 +1,4 @@
+cluster_name: ds-starship-dev
+gcp_ingress_cloud_armor: ds-starship-dev-app-cloud-armor
+target_url: ds-starship-dev.datascience-team.dev-unext.com
+ingress_globalip_name: ds-starship-dev-api-ingress-ip

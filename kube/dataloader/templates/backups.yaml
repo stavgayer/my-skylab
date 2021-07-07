@@ -39,7 +39,7 @@ spec:
             mountPath: /gcpsecret
           args:
             - |
-              cassandratools cassandraload -d /data -m {{ $backup.file}} -h cassandra;     
+              cassandratools cassandraload -d /data -m {{ $backup.file}} -h cassandra-asianortheast1-service;     
     {{ end }}
 {{- end }}
       containers:

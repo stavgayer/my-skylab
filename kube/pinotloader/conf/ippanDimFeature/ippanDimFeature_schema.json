@@ -1,0 +1,105 @@
+{
+    "schemaName": "ippanDimFeature",
+    "primaryKeyColumns": ["feature_public_code"],
+    "dimensionFieldSpecs": [
+        {
+            "name": "feature_public_code",
+            "dataType": "STRING"
+        },
+        {
+            "name": "feature_name",
+            "dataType": "STRING"
+        },
+        {
+            "name": "genre_tag_code",
+            "dataType": "STRING"
+        },
+        {
+            "name": "tag_name",
+            "dataType": "STRING"
+        },
+        {
+            "name": "platform",
+            "dataType": "STRING"
+        },
+        {
+            "name": "popularity_point",
+            "dataType": "INT"
+        },
+        {
+            "name": "film_rating_order",
+            "dataType": "INT"
+        },
+        {
+            "name": "feature_public_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "feature_display_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "feature_home_display_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "feature_pickup_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "recommend_hint_code",
+            "dataType": "STRING"
+        },
+        {
+            "name": "comment_display_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "feature_order_type_code",
+            "dataType": "STRING"
+        },
+        {
+            "name": "sakuhin_cut_flg",
+            "dataType": "INT"
+        },
+        {
+            "name": "lead_text",
+            "dataType": "STRING"
+        },
+        {
+            "name": "sakuhin_codes",
+            "dataType": "STRING"
+        },
+        {
+            "name": "FILM_RATING_CODE",
+            "dataType": "STRING"
+        }
+    ],
+    "metricFieldSpecs": [],
+    "dateTimeFieldSpecs": [
+        {
+            "name": "feature_public_start_datetime",
+            "dataType": "STRING",
+            "format": "1:HOURS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
+            "granularity": "1:SECONDS"
+        },
+        {
+            "name": "feature_public_end_datetime",
+            "dataType": "STRING",
+            "format": "1:HOURS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
+            "granularity": "1:SECONDS"
+        },        
+        {
+            "name": "UPDATE_DATETIME",
+            "dataType": "STRING",
+            "format": "1:HOURS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
+            "granularity": "1:SECONDS"
+        },
+        {
+            "name": "segmenttime",
+            "dataType": "LONG",
+            "format": "1:MILLISECONDS:EPOCH",
+            "granularity": "1:MILLISECONDS"
+        }
+    ]
+}

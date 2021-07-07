@@ -1,0 +1,57 @@
+
+#bin/pinot-admin.sh ChangeTableState -tableName smallDimFeature -state drop -controllerHost localhost -controllerPort 9000
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: setup-student-table
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: delete-table
+          image: apachepinot/pinot:latest
+          command: ["/bin/bash", "-c", "--"]
+          args:
+            - |
+              bin/pinot-admin.sh ChangeTableState -tableName students -state drop -controllerHost pinot-controller -controllerPort 9000
+        - name: add-table
+          image: apachepinot/pinot:latest
+          args: [ "AddTable", 
+                "-schemaFile", "/var/pinot/tables/student_schema.json",
+                "-tableConfigFile", "/var/pinot/tables/student_table.json", 
+                "-controllerHost", "pinot-controller", "-controllerPort", "9000", "-exec" ]
+          env:
+            - name: JAVA_OPTS
+              value: "-Xms4G -Xmx4G -Dpinot.admin.system.exit=true"
+          volumeMounts:
+            - name: tables
+              mountPath: /var/pinot/tables
+        - name: load-data
+          image: 938175221734.dkr.ecr.ap-northeast-1.amazonaws.com/datascience-dev/pinotspark:1.0.0
+          securityContext:
+            runAsUser: 0          
+          command: ["/bin/bash", "-c", "--"]          
+          args: 
+           - |
+              spark-submit \
+                --class org.apache.pinot.tools.admin.command.LaunchDataIngestionJobCommand \
+                --master local --deploy-mode client \
+                --conf "spark.driver.extraJavaOptions=-Dplugins.dir=${PINOT_DISTRIBUTION_DIR}/plugins \-Dplugins.include=pinot-s3,pinot-parquet -Dlog4j2.configurationFile=${PINOT_DISTRIBUTION_DIR}/conf/pinot-ingestion-job-log4j2.xml" \
+                --conf "spark.driver.extraClassPath=${PINOT_DISTRIBUTION_DIR}/plugins/pinot-batch-ingestion/pinot-batch-ingestion-spark/pinot-batch-ingestion-spark-${PINOT_VERSION}-shaded.jar:${PINOT_DISTRIBUTION_DIR}/lib/pinot-all-${PINOT_VERSION}-jar-with-dependencies.jar:${PINOT_DISTRIBUTION_DIR}/plugins/pinot-file-system/pinot-s3/pinot-s3-${PINOT_VERSION}-shaded.jar:${PINOT_DISTRIBUTION_DIR}/plugins/pinot-input-format/pinot-parquet/pinot-parquet-${PINOT_VERSION}-shaded.jar" \
+                local://${PINOT_DISTRIBUTION_DIR}/lib/pinot-all-${PINOT_VERSION}-jar-with-dependencies.jar -jobSpecFile /var/pinot/tables/student_spark_job_spec.yaml
+          env:
+            - name: JAVA_OPTS
+              value: "-Xms4G -Xmx4G -Dpinot.admin.system.exit=true"
+          volumeMounts:
+            - name: tables
+              mountPath: /var/pinot/tables              
+      containers:
+      - name: done
+        image: busybox
+        command: ['sh', '-c', 'echo done;']       
+      restartPolicy: OnFailure
+      volumes:
+        - name: tables
+          configMap:
+            name: pinot-data-configuration
+  backoffLimit: 100

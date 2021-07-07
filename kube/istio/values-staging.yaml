@@ -1,0 +1,4 @@
+cluster_name: ds-starship-staging
+gcp_ingress_cloud_armor: ds-starship-staging-app-cloud-armor
+target_url: ds-starship-staging.datascience-team.dev-unext.com
+ingress_globalip_name: ds-starship-staging-api-ingress-ip

@@ -1,0 +1,27 @@
+executionFrameworkSpec:
+  name: 'spark'
+  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentGenerationJobRunner'
+  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentTarPushJobRunner'
+  segmentUriPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentUriPushJobRunner'
+  extraConfigs:
+    stagingDir: s3://unext-datascience/starship/staging/
+jobType: SegmentCreationAndTarPush
+inputDirURI: 's3://unext-datascience/starship/ingest/'
+outputDirURI: 's3://unext-datascience/starship/output/'
+overwriteOutput: true
+pinotFSSpecs:
+  - scheme: s3
+    className: org.apache.pinot.plugin.filesystem.S3PinotFS
+    configs:    
+      region: 'ap-northeast-1'
+recordReaderSpec:
+  dataFormat: 'parquet'
+  className: 'org.apache.pinot.plugin.inputformat.parquet.ParquetRecordReader'
+tableSpec:
+  tableName: 'students'
+pinotClusterSpecs:
+  - controllerURI: 'http://pinot-controller:9000'
+pushJobSpec:
+  pushParallelism: 2
+  pushAttempts: 2
+  pushRetryIntervalMillis: 1000

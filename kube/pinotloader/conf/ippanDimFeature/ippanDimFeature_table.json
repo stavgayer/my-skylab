@@ -1,0 +1,30 @@
+{
+    "tableName": "ippanDimFeature",
+    "segmentsConfig": {
+        "replication": "1",
+        "timeColumnName": "segmenttime",
+        "timeType": "MILLISECONDS",
+        "schemaName": "ippanDimFeature"
+    },
+    "tableIndexConfig": {
+        "invertedIndexColumns": [],
+        "loadMode": "MMAP"
+    },
+    "ingestionConfig": {
+        "batchIngestionConfig": {
+            "segmentIngestionType": "REFRESH",
+            "segmentIngestionFrequency": "DAILY"
+        },
+        "transformConfigs": [{
+            "columnName": "segmenttime",
+            "transformFunction": "fromDateTime(UPDATE_DATETIME, 'yyyy-MM-dd HH:mm:ss')"
+        }]
+    },        
+    "tenants": {
+        "broker": "DefaultTenant",
+        "server": "DefaultTenant"
+    },
+    "metadata": {},
+    "tableType": "OFFLINE",
+    "isDimTable": true
+}

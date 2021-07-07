@@ -1,0 +1,6 @@
+dependencies:
+- name: k8ssandra
+  repository: https://helm.k8ssandra.io/stable
+  version: 1.2.0
+digest: sha256:1582054b35155fc03153f5aec65d4a6283a099687311c67842a5c8a8cd11a87d
+generated: "2021-06-22T10:04:24.966264+09:00"

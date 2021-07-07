@@ -1,0 +1,9 @@
+---
+apiVersion: cloud.google.com/v1beta1
+kind: BackendConfig
+metadata:
+  name: istio-backend-config
+  namespace: {{.Release.Namespace}}
+spec:
+  securityPolicy:
+    name: {{.Values.gcp_ingress_cloud_armor}}

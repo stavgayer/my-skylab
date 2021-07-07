@@ -1,0 +1,10 @@
+cluster_name: ds-starship-prod
+target_url: ds-starship-prod.datascience-team.dev-unext.com
+
+# Use the following if using prod cluster. This is here for backup. Don't touch
+# gcp_ingress_cloud_armor: ds-starship-prod-app-cloud-armor
+# ingress_globalip_name: ds-starship-prod-api-ingress-ip
+
+# Use the following if using prod2 cluster. This is here for backup. Don't touch
+gcp_ingress_cloud_armor: ds-starship-prod2-app-cloud-armor
+ingress_globalip_name: ds-starship-prod2-api-ingress-ip

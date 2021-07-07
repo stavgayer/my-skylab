@@ -1,0 +1,18 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: http-gateway
+  namespace: {{.Release.Namespace}}
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{.Values.ingress_globalip_name}}
+    # networking.gke.io/managed-certificates: {{.Values.cluster_name}}-ingress-ip-certicate
+spec:
+  rules:
+    - host: {{.Values.target_url}}
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: istio-ingressgateway
+              servicePort: 80

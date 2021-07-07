@@ -1,0 +1,28 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: student-table-creation
+spec:
+  template:
+    spec:
+      containers:
+        - name: pinot-add-student-table-json
+          image: apachepinot/pinot:latest
+          args: [ "AddTable", 
+                "-schemaFile", "/var/pinot/tables/student_schema.json", 
+                "-tableConfigFile", "/var/pinot/tables/student_table.json", 
+                "-controllerHost", "pinot-controller", "-controllerPort", "9000", "-exec" 
+          ]
+          env:
+            - name: JAVA_OPTS
+              value: "-Xms4G -Xmx4G -Dpinot.admin.system.exit=true"
+          volumeMounts:
+            - name: tables
+              mountPath: /var/pinot/tables
+      restartPolicy: OnFailure
+      volumes:
+        - name: tables
+          configMap:
+            name: pinot-data-configuration
+  backoffLimit: 100

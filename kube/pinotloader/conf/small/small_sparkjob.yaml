@@ -1,0 +1,43 @@
+executionFrameworkSpec:
+  name: 'spark'
+  segmentGenerationJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentGenerationJobRunner'
+  segmentTarPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentTarPushJobRunner'
+  segmentUriPushJobRunnerClassName: 'org.apache.pinot.plugin.ingestion.batch.spark.SparkSegmentUriPushJobRunner'
+  extraConfigs:
+    stagingDir: s3://unext-datascience/starship/small/staging/
+jobType: SegmentCreationAndTarPush
+inputDirURI: 's3://unext-datascience/jobs/stargazer/etl/small/'
+# includeFileNamePattern: 'glob:*.csv'
+outputDirURI: 's3://unext-datascience/starship/small/output/'
+overwriteOutput: true
+pinotFSSpecs:
+  # - scheme: file
+  #   className: org.apache.pinot.spi.filesystem.LocalPinotFS
+  - scheme: s3
+    className: org.apache.pinot.plugin.filesystem.S3PinotFS
+    configs:
+      region: 'ap-northeast-1'
+recordReaderSpec:
+  dataFormat: 'parquet'
+  className: 'org.apache.pinot.plugin.inputformat.parquet.ParquetRecordReader'  
+  # dataFormat: 'csv'
+  # className: 'org.apache.pinot.plugin.inputformat.csv.CSVRecordReader'
+  # configClassName: org.apache.pinot.plugin.inputformat.csv.CSVRecordReaderConfig
+  # configs:
+  #   fileFormat: 'default' #should be one of default, rfc4180, excel, tdf, mysql
+  #   header: 'feature_public_code,feature_name,genre_tag_code,tag_name,platform,popularity_point,film_rating_order,feature_public_flg,feature_display_flg,feature_home_display_flg,feature_public_start_datetime,feature_public_end_datetime,feature_pickup_flg,recommend_hint_code,comment_display_flg,feature_order_type_code,sakuhin_cut_flg,lead_text,sakuhin_codes,UPDATE_DATETIME,time,FILM_RATING_CODE'
+  #   delimiter: ','  
+
+tableSpec:
+  tableName: 'small'
+  # schemaURI: 'http://pinot-controller:9000/tables/smalldimfeature/schema'
+  # tableConfigURI: 'http://pinot-controller:9000/tables/smalldimfeature'
+pinotClusterSpecs:
+  - controllerURI: 'http://pinot-controller:9000'
+
+pushJobSpec:
+  pushParallelism: 2
+  pushAttempts: 2
+  pushRetryIntervalMillis: 1000
+  # segmentUriPrefix: 's3://unext-datascience'
+  # segmentUriSuffix: ''

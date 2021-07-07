@@ -1,11 +1,13 @@
 pinot:
+  image:
+    tag: release-0.7.1
   cluster:
     name: pinot
   server:
     replicaCount: 2    
     nodeSelector:
       role: worker
-      nodetype: m5.2xlarge
+      nodetype: c5.2xlarge
     tolerations:
     - key: role
       operator: Equal
@@ -21,7 +23,7 @@ pinot:
   controller:
     nodeSelector:
       role: worker
-      nodetype: m5.2xlarge
+      nodetype: c5.2xlarge
     tolerations:
     - key: role
       operator: Equal
@@ -30,9 +32,10 @@ pinot:
     # Extra configs will be appended to pinot-controller.conf file
     extra:
       configs: |-
+        controller.data.dir=s3://unext-datascience/pinot-data/dev/controller-data
+        controller.local.temp.dir=/var/pinot/controller/tmp-data/
         pinot.set.instance.id.to.hostname=true
         controller.task.scheduler.enabled=true
-        controller.data.dir=s3://unext-datascience/starship/output/
         controller.enable.split.commit=true
         pinot.controller.storage.factory.class.s3=org.apache.pinot.plugin.filesystem.S3PinotFS
         pinot.controller.storage.factory.s3.region=ap-northeast-1
@@ -42,7 +45,7 @@ pinot:
   broker:
     nodeSelector:
       role: worker
-      nodetype: m5.2xlarge
+      nodetype: c5.2xlarge
     tolerations:
     - key: role
       operator: Equal
@@ -51,7 +54,7 @@ pinot:
   minion:
     nodeSelector:
       role: worker
-      nodetype: m5.2xlarge
+      nodetype: c5.2xlarge
     tolerations:
     - key: role
       operator: Equal

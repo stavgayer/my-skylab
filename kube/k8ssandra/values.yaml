@@ -1,0 +1,48 @@
+cassandratools:
+  image: asia.gcr.io/unext-recommender-system/ds-ds-starfish-cassandratools:latest
+  
+datacenter: asianortheast1  
+k8ssandra:
+  cassandra:
+    version: "3.11.10"
+    auth: 
+      enabled: false
+    cassandraLibDirVolume:
+      storageClass: gp2
+      size: 100Gi
+    allowMultipleNodesPerWorker: true
+    # heap:
+    #   size: 1G
+    #   newGenSize: 1G
+    resources:
+      requests:
+        cpu: 3000m
+        memory: 14Gi
+      limits:
+        cpu: 3000m
+        memory: 14Gi
+    tolerations: 
+      - key: role
+        operator: Equal
+        value: worker
+        effect: NoSchedule        
+    datacenters:
+    - name: asianortheast1
+      size: 3
+      racks:
+      - name: zoneb
+        affinityLabels:
+          nodetype: m5.xlarge
+  reaper:
+    autoschedule: true
+  kube-prometheus-stack:
+    enabled: false
+    grafana:
+      adminUser: admin
+      adminPassword: admin123
+  stargate:
+    enabled: false
+    replicas: 1
+    heapMB: 256
+    cpuReqMillicores: 200
+    cpuLimMillicores: 1000

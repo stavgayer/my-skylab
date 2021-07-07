@@ -1,0 +1,31 @@
+{
+    "schemaName": "students",
+    "dimensionFieldSpecs": [
+        {
+            "name": "id",
+            "dataType": "INT"
+        },
+        {
+            "name": "name",
+            "dataType": "STRING"
+        },
+        {
+            "name": "age",
+            "dataType": "INT"
+        }
+    ],
+    "metricFieldSpecs": [
+        {
+            "name": "score",
+            "dataType": "INT"
+        }
+    ],
+    "dateTimeFieldSpecs": [
+        {
+            "name": "timestampInEpoch",
+            "dataType": "LONG",
+            "format": "1:MILLISECONDS:EPOCH",
+            "granularity": "1:MILLISECONDS"
+        }
+    ]
+}

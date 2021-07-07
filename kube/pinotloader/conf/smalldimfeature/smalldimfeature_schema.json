@@ -1,0 +1,24 @@
+{
+    "schemaName": "smalldimfeature",
+    "dimensionFieldSpecs": [
+        {
+            "name": "feature_public_code",
+            "dataType": "STRING"
+        }
+    ],
+    "metricFieldSpecs": [],
+    "dateTimeFieldSpecs": [
+        {
+            "name": "datetime",
+            "dataType": "STRING",
+            "format": "1:HOURS:SIMPLE_DATE_FORMAT:yyyy-MM-dd HH:mm:ss",
+            "granularity": "1:SECONDS"
+        },
+        {
+            "name": "time",
+            "dataType": "LONG",
+            "format": "1:MILLISECONDS:EPOCH",
+            "granularity": "1:MILLISECONDS"
+        }
+    ]
+}

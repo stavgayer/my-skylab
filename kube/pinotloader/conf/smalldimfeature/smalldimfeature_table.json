@@ -1,0 +1,25 @@
+{
+    "tableName": "smalldimfeature",
+    "segmentsConfig": {
+        "replication": "1",
+        "timeColumnName": "time",
+        "timeType": "MILLISECONDS",
+        "schemaName": "smalldimfeature"
+    },
+    "tableIndexConfig": {
+        "invertedIndexColumns": [],
+        "loadMode": "MMAP"
+    },
+    "ingestionConfig": {
+        "transformConfigs": [{
+            "columnName": "time",
+            "transformFunction": "fromDateTime(datetime, 'yyyy-MM-dd HH:mm:ss')"
+        }]
+    },    
+    "tenants": {
+        "broker": "DefaultTenant",
+        "server": "DefaultTenant"
+    },
+    "metadata": {},
+    "tableType": "OFFLINE"
+}

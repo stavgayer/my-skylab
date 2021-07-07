@@ -4,5 +4,5 @@ kind: ConfigMap
 metadata:
   name: pinot-data-configuration
 data:
-{{ (tpl (.Files.Glob ("conf/*") ).AsConfig . ) | indent 2 }}
+{{ (tpl (.Files.Glob ("conf/*/*") ).AsConfig . ) | indent 2 }}
 ---

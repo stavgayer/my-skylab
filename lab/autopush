@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-SLEEP=${1:-20}
-gitautopush . --sleep $SLEEP

@@ -1,6 +1,6 @@
 VERSION=1.0.0
 NAME ?= pinotspark
-REPOSITORY?=asia.gcr.io/unext-recommender-system/dsml
+REPOSITORY?=938175221734.dkr.ecr.ap-northeast-1.amazonaws.com/datascience-dev
 
 IMAGE ?= $(REPOSITORY)/$(NAME):$(VERSION)
 IMAGE_LATEST ?= $(REPOSITORY)/$(NAME):latest
