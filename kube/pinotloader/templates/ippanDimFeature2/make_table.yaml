@@ -55,7 +55,7 @@ spec:
               mountPath: /var/pinot/tables              
       containers:
       - name: done
-        image: busybox
+        image: 938175221734.dkr.ecr.ap-northeast-1.amazonaws.com/datascience-dev/pinotspark:1.0.0
         command: ['sh', '-c', 'echo done;']       
       restartPolicy: OnFailure
       volumes:
